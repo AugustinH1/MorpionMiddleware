@@ -68,7 +68,7 @@ void requete(socket_t sockDialogue){
                 break;
             case 201:
                 //disconect
-                break
+                break;
             case 203:
                 //lister les parties
                 envoyer(&sockDialogue, joueurs, (pFct)serialize_tab_requte);
