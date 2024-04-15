@@ -120,6 +120,53 @@ void *jouerSvr2Clt(void *arg){
     socket_t sockDialogue = *(socket_t *)arg;
 
     printf("jeu Srv\n");
+
+    plateau plateau;
+    initPlateau(&plateau);
+
+    coord coord;
+
+    while(1){
+        printPlateau(&plateau);
+        //demander coordonnées au joueur
+        printf("Entrez les coordonnées x et y de votre coup (entre 0 et 2) : ");
+        scanf("%d %d", &coord.ligne, &coord.colonne);
+
+        //vérifier les coordonnées
+        while (verifCoord(plateau, &coord) == 0){
+            printf("Coordonnées invalides, veuillez réessayer : ");
+            scanf("%d %d", &coord.ligne, &coord.colonne);
+        }
+
+        //mettre à jour le plateau
+        plateau.tab[coord.ligne][coord.colonne] = 'X';
+        printPlateau(&plateau);
+
+        if (evalPlateau(&plateau, 'X') == 1){
+            plateau.joueurGagnant = 1;
+            envoyer(&sockDialogue, &plateau, (pFct)serialize_plateau);
+            printf("Vous avez gagné\n");
+            break;
+        }
+
+        //envoyer le plateau au client
+        envoyer(&sockDialogue, &plateau, (pFct)serialize_plateau);
+
+        //recevoir les coordonnées du client
+        recevoir(&sockDialogue, &coord, (pFct)deserialize_coord);
+
+        //mettre à jour le plateau
+        plateau.tab[coord.ligne][coord.colonne] = 'O';
+
+        if (evalPlateau(&plateau, 'O') == 1){
+            plateau.joueurGagnant = 2;
+            printf("Vous avez perdu\n");
+            break;
+        }
+
+    }
+
+
     
 
     
@@ -131,6 +178,44 @@ void *jouerClt2Srv(void *arg){
     socket_t sockDialogue = *(socket_t *)arg;
 
     printf("jeu Clt\n");
+
+    plateau plateau;
+
+    while(1){
+        //recevoir le plateau
+        recevoir(&sockDialogue, &plateau, (pFct)deserialize_plateau);
+        printPlateau(&plateau);
+
+        if (plateau.joueurGagnant == 1){
+            printf("Vous avez perdu\n");
+            break;
+        }
+        
+
+        coord coord;
+        //demander coordonnées au joueur
+        printf("Entrez les coordonnées x et y de votre coup (entre 0 et 2) : ");
+        scanf("%d %d", &coord.ligne, &coord.colonne);
+
+        //vérifier les coordonnées
+        while (verifCoord(plateau, &coord) == 0){
+            printf("Coordonnées invalides, veuillez réessayer : ");
+            scanf("%d %d", &coord.ligne, &coord.colonne);
+        }
+
+        //mettre à jour le plateau
+        plateau.tab[coord.ligne][coord.colonne] = 'O';
+        printPlateau(&plateau);
+
+        //envoyer les coordonnées au serveur
+        envoyer(&sockDialogue, &coord, (pFct)serialize_coord);
+
+        if(evalPlateau(&plateau, 'O') == 1){
+            plateau.joueurGagnant = 2;
+            printf("Vous avez gagné\n");
+            break;
+        }
+    }
 
 
     

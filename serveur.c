@@ -1,5 +1,5 @@
 //Morpion en réseau avec 2 clients et un serveur
-// watch -d -n0.1 'netstat --inet -anp | grep 5000'
+//watch -d -n0.1 'netstat --inet -anp | grep exe'
 //ici le serveur
 
 

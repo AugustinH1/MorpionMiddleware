@@ -1,6 +1,6 @@
 #include "../include/morpion.h"
 
-void initPlateau(plateau *plateau) {
+void initPlateau(plateau *plateau){
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             plateau->tab[i][j] = ' ';
@@ -8,7 +8,7 @@ void initPlateau(plateau *plateau) {
     }
 }
 
-void printPlateau(plateau *plateau) {
+void printPlateau(plateau *plateau){
     printf("  0 | 1 | 2\n");
     printf("  ---------\n");
     for (int i = 0; i < 3; i++) {
@@ -20,30 +20,31 @@ void printPlateau(plateau *plateau) {
     }
 }
 
-int evalPlateau(plateau *plateau) {
-    //je vérifie les lignes
-    for (int i = 0; i < 3; i++)
-        if (plateau->tab[i][0] == plateau->tab[i][1] && plateau->tab[i][1] == plateau->tab[i][2] && plateau->tab[i][0] != ' ')
+int evalPlateau(plateau *plateau, char figure){
+    //figure = 'X' ou 'O'
+    //verifier les lignes
+    for (int i = 0; i < 3; i++) {
+        if (plateau->tab[i][0] == figure && plateau->tab[i][1] == figure && plateau->tab[i][2] == figure)
             return 1;
+    }
 
-
-    //je vérifie les colonnes
-    for (int i = 0; i < 3; i++)
-        if (plateau->tab[0][i] == plateau->tab[1][i] && plateau->tab[1][i] == plateau->tab[2][i] && plateau->tab[0][i] != ' ')
+    //verifier les colonnes
+    for (int i = 0; i < 3; i++) {
+        if (plateau->tab[0][i] == figure && plateau->tab[1][i] == figure && plateau->tab[2][i] == figure)
             return 1;
+    }
 
-
-    //je vérifie les diagonales
-    if (plateau->tab[0][0] == plateau->tab[1][1] && plateau->tab[1][1] == plateau->tab[2][2] && plateau->tab[0][0] != ' ')
+    //verifier les diagonales
+    if (plateau->tab[0][0] == figure && plateau->tab[1][1] == figure && plateau->tab[2][2] == figure)
+        return 1;
+    if (plateau->tab[0][2] == figure && plateau->tab[1][1] == figure && plateau->tab[2][0] == figure)
         return 1;
 
-    if (plateau->tab[0][2] == plateau->tab[1][1] && plateau->tab[1][1] == plateau->tab[2][0] && plateau->tab[0][2] != ' ')
-        return 1;
 
     return 0;
 }
 
-int verifCoord(plateau plateau, coord *coord) {
+int verifCoord(plateau plateau, coord *coord){
     //verifier si les coordonnées sont dans le plateau
     if (coord->ligne < 0 || coord->ligne > 2 || coord->colonne < 0 || coord->colonne > 2)
         return 0;
@@ -87,4 +88,19 @@ void deserialize_tab_requete(char *buffer, requete_t *tab){
         token = strtok(NULL, "_");
         i++;
     }
+}
+
+void serialize_plateau(plateau *plateau, char *buffer){
+    sprintf(buffer, "%d:%c%c%c%c%c%c%c%c%c", plateau->joueurGagnant, plateau->tab[0][0], plateau->tab[0][1], plateau->tab[0][2], plateau->tab[1][0], plateau->tab[1][1], plateau->tab[1][2], plateau->tab[2][0], plateau->tab[2][1], plateau->tab[2][2]);
+}
+
+void deserialize_plateau(char *buffer, plateau *plateau){
+    sscanf(buffer, "%d:%c%c%c%c%c%c%c%c%c", &plateau->joueurGagnant, &plateau->tab[0][0], &plateau->tab[0][1], &plateau->tab[0][2], &plateau->tab[1][0], &plateau->tab[1][1], &plateau->tab[1][2], &plateau->tab[2][0], &plateau->tab[2][1], &plateau->tab[2][2]);
+}
+
+void serialize_coord(coord *coord, char *buffer){
+    sprintf(buffer, "%d:%d", coord->ligne, coord->colonne);
+}
+void deserialize_coord(char *buffer, coord *coord){
+    sscanf(buffer, "%d:%d", &coord->ligne, &coord->colonne);
 }
