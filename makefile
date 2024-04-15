@@ -13,4 +13,4 @@ serveur.exe: serveur.c morpion.o
 	$(CC) $(CFLAGS) serveur.c morpion.o -o serveur.exe -l INET -L ../libINET
 
 clean:
-	rm -f *.exe
+	rm -f *.exe *.o

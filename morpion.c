@@ -59,8 +59,18 @@ int verifCoord(plateau plateau, coord *coord) {
 
 
 void serialize_requete(requete_t *r, char *buffer){
-    sprintf(buffer, "%d:%s:%d", r->joueur, r->ip, r->port);
+    sprintf(buffer, "%d:%d:%d:%hd:%d",r->id, r->joueur, r->ip, r->port, r->waitJoueur);
 }
 void deserialize_requete(char *buffer, requete_t *r) {
-    sscanf(buffer, "%d:%s:%d", &r->joueur, r->ip, &r->port);
+    sscanf(buffer, "%d:%d:%d:%hd:%d",&r->id, &r->joueur, &r->ip, &r->port, &r->waitJoueur);
+}
+void serialize_tab_requte(requete_t *tab, char *buffer){
+    for (int i = 0; i < MAX_BUFFER; i++) {
+        serialize_requete(&tab[i], buffer);
+    }
+}
+void deserialize_tab_requete(char *buffer, requete_t *tab){
+    for (int i = 0; i < MAX_BUFFER; i++) {
+        deserialize_requete(buffer, &tab[i]);
+    }
 }
