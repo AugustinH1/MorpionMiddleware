@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "*.txt": "c",
-        "semaphore.h": "c"
+        "semaphore.h": "c",
+        "morpion.h": "c",
+        "data.h": "c",
+        "session.h": "c",
+        "stdarg.h": "c"
     }
 }

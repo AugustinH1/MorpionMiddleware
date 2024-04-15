@@ -1,4 +1,7 @@
 #include "../libINET/data.h"
+#include <pthread.h>
+#include <semaphore.h>
+
 #define PORT_SVC 5000
 #define IP_LO0 "127.0.0.1"
 #define MAX_CLIENT 10

@@ -1,4 +1,4 @@
-#include "morpion.h"
+#include "../include/morpion.h"
 
 void initPlateau(plateau *plateau) {
     for (int i = 0; i < 3; i++) {
@@ -56,6 +56,8 @@ int verifCoord(plateau plateau, coord *coord) {
     return 1;
 
 }
+
+
 
 
 void serialize_requete(requete_t *r, char *buffer){
