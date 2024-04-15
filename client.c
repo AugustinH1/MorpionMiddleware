@@ -148,6 +148,12 @@ void *jouerSvr2Clt(void *arg){
             printf("Vous avez gagné\n");
             break;
         }
+        if (evalPlateau(&plateau, 'X') == 3){
+            plateau.joueurGagnant = 3;
+            envoyer(&sockDialogue, &plateau, (pFct)serialize_plateau);
+            printf("Egalité\n");
+            break;
+        }
 
         //envoyer le plateau au client
         envoyer(&sockDialogue, &plateau, (pFct)serialize_plateau);
@@ -161,6 +167,11 @@ void *jouerSvr2Clt(void *arg){
         if (evalPlateau(&plateau, 'O') == 1){
             plateau.joueurGagnant = 2;
             printf("Vous avez perdu\n");
+            break;
+        }
+        if(evalPlateau(&plateau, 'O') == 3){
+            plateau.joueurGagnant = 3;
+            printf("Egalité\n");
             break;
         }
 
@@ -190,6 +201,10 @@ void *jouerClt2Srv(void *arg){
             printf("Vous avez perdu\n");
             break;
         }
+        if (plateau.joueurGagnant == 3){
+            printf("Egalité\n");
+            break;
+        }
         
 
         coord coord;
@@ -213,6 +228,11 @@ void *jouerClt2Srv(void *arg){
         if(evalPlateau(&plateau, 'O') == 1){
             plateau.joueurGagnant = 2;
             printf("Vous avez gagné\n");
+            break;
+        }
+        if(evalPlateau(&plateau, 'O') == 3){
+            plateau.joueurGagnant = 3;
+            printf("Egalité\n");
             break;
         }
     }

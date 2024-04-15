@@ -21,25 +21,33 @@ void printPlateau(plateau *plateau){
 }
 
 int evalPlateau(plateau *plateau, char figure){
-    //figure = 'X' ou 'O'
+    //figure = 'X' ou 'O' rencoie 3 si égalité, 1 si figure gagne, 0 sinon
     //verifier les lignes
     for (int i = 0; i < 3; i++) {
         if (plateau->tab[i][0] == figure && plateau->tab[i][1] == figure && plateau->tab[i][2] == figure)
             return 1;
     }
-
     //verifier les colonnes
     for (int i = 0; i < 3; i++) {
         if (plateau->tab[0][i] == figure && plateau->tab[1][i] == figure && plateau->tab[2][i] == figure)
             return 1;
     }
-
     //verifier les diagonales
     if (plateau->tab[0][0] == figure && plateau->tab[1][1] == figure && plateau->tab[2][2] == figure)
         return 1;
     if (plateau->tab[0][2] == figure && plateau->tab[1][1] == figure && plateau->tab[2][0] == figure)
         return 1;
 
+    //verifier si égalité
+    int nbCaseVide = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (plateau->tab[i][j] == ' ')
+                nbCaseVide++;
+        }
+    }
+    if (nbCaseVide == 0)
+        return 3;
 
     return 0;
 }
