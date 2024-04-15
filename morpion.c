@@ -59,18 +59,30 @@ int verifCoord(plateau plateau, coord *coord) {
 
 
 void serialize_requete(requete_t *r, char *buffer){
-    sprintf(buffer, "%d:%d:%d:%hd:%d",r->id, r->joueur, r->ip, r->port, r->waitJoueur);
+    sprintf(buffer, "%d:%d:%s:%d:%d",r->id, r->joueur.id, r->joueur.ip, r->joueur.port, r->joueur.waitJoueur);
 }
+
 void deserialize_requete(char *buffer, requete_t *r) {
-    sscanf(buffer, "%d:%d:%d:%hd:%d",&r->id, &r->joueur, &r->ip, &r->port, &r->waitJoueur);
+    sscanf(buffer, "%d:%d:%[^:]:%d:%d",&r->id, &r->joueur.id, r->joueur.ip, &r->joueur.port, &r->joueur.waitJoueur);
 }
+
 void serialize_tab_requte(requete_t *tab, char *buffer){
-    for (int i = 0; i < MAX_BUFFER; i++) {
-        serialize_requete(&tab[i], buffer);
+    //Clean buffer
+    memset(buffer, 0, MAX_BUFFER);
+    for (int i = 0; i < MAX_CLIENT; i++) {
+        buffer_t tmp;
+        serialize_requete(&tab[i], tmp);
+        strcat(buffer, tmp);
+        strcat(buffer, "_");
     }
 }
+
 void deserialize_tab_requete(char *buffer, requete_t *tab){
-    for (int i = 0; i < MAX_BUFFER; i++) {
-        deserialize_requete(buffer, &tab[i]);
+    char *token = strtok(buffer, "_");
+    int i = 0;
+    while (token != NULL) { 
+        deserialize_requete(token, &tab[i]);
+        token = strtok(NULL, "_");
+        i++;
     }
 }

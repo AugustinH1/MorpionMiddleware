@@ -1,6 +1,7 @@
 #include "../libINET/data.h"
 #define PORT_SVC 5000
 #define IP_LO0 "127.0.0.1"
+#define MAX_CLIENT 10
 
 
 typedef struct plateau {
@@ -13,12 +14,16 @@ typedef struct coord {
 }coord;
 
 typedef struct {
+    int id;//id du joueur
+    char ip[16];
+    u_int16_t port;
+    int waitJoueur;
+}joueur_t;
+
+typedef struct {
     int id;// id de la requette
-    int joueur;
-    //ip et port du joueur en system
-    struct in_addr ip;   
-    short port;
-    int waitJoueur; //1 si en attente, 0 si ok, 2 si non initialiser
+    char message[MAX_BUFFER];
+    joueur_t joueur;
 }requete_t;
 
 
@@ -30,4 +35,4 @@ int verifCoord(plateau plateau, coord *coord);
 void deserialize_requete(char *buffer, requete_t *r);
 void serialize_requete(requete_t *r, char *buffer);
 void serialize_tab_requte(requete_t *tab, char *buffer);
-void serialize_tab_requte(requete_t *tab, char *buffer);
+void deserialize_tab_requete(char *buffer, requete_t *tab);

@@ -39,11 +39,9 @@ void *srvJeu(void *arg){
 
     while (1){
         sockDialogue = accepterClt(sockEcouteSrvjeu);
-        
         pthread_create(&thread, NULL, jouerSvr2Clt,(void *)&sockDialogue);
 
-        
-
+    
     }
     close (sockDialogue.fd);
     close(sockEcouteSrvjeu.fd);
@@ -55,69 +53,62 @@ void *srvJeu(void *arg){
 void *dialSvrEnr(void *arg){
     socket_t sockDialogue;
 
+    PAUSE("CONNEXION");
     sockDialogue = connecterClt2Srv(IP_LO0, PORT_SVC);
-
+    
     //requete d'enregistrement
     requete_t requete;
     requete.id = 200;
-    requete.ip = sockDialogue.addrLoc.sin_addr;
-    requete.port = sockDialogue.addrLoc.sin_port;
+    strcpy(requete.joueur.ip, inet_ntoa(sockEcouteSrvjeu.addrLoc.sin_addr));
+    requete.joueur.port = ntohs(sockEcouteSrvjeu.addrLoc.sin_port);
 
-    envoyer(&sockDialogue, &requete, serialize_requete);
-
-
-    while(1){
-        printf("Que voulez vous faire?\n");
-        printf("1: se connecter\n");
-        printf("2: lister les parties\n");
-        printf("5: quitter\n");
+    printf("Requete envoye: [%d] [%s] [%d]\n", requete.id, requete.joueur.ip, requete.joueur.port);
+    envoyer(&sockDialogue, &requete, (pFct)serialize_requete);
 
 
-        int choix;
-        scanf("%d", &choix);
+    PAUSE("LISTE DES JOUEURS")
+    //liste les partie en cours
+    requete.id = 203;
+    printf("Requete envoye: [%d]\n", requete.id);
+    envoyer(&sockDialogue, &requete, (pFct)serialize_requete);
 
-        switch (choix)
-        {
-            case 1:
-                requete.id = 200;
-                requete.waitJoueur = 0;
-                envoyer(&sockDialogue, &requete, serialize_requete);
+    requete_t joueurs[MAX_CLIENT];
+    recevoir(&sockDialogue, &joueurs, (pFct)deserialize_tab_requete);
 
 
-                socket_t sockDialogue;
-                pthread_t thread;
-                pthread_create(&thread, NULL, jouerClt2Srv,(void *)&sockDialogue);
+    printf("Liste des connectés recu\n");
+    
+    for(int i = 0; i < MAX_CLIENT; i++){
+        //verifier qu'il soit en attente et pas luis meme
+        if((joueurs[i].joueur.waitJoueur == 1) 
+            && (strcmp(joueurs[i].joueur.ip, inet_ntoa(sockEcouteSrvjeu.addrLoc.sin_addr)) == 0)
+            && (joueurs[i].joueur.port == ntohs(sockEcouteSrvjeu.addrLoc.sin_port)) == 0){
+            printf("Joueur [%d]:[%s]:[%d] status d'attente [%d]\n", i, joueurs[i].joueur.ip, joueurs[i].joueur.port, joueurs[i].joueur.waitJoueur);
 
-                pthread_exit(NULL);
-                break;
-            case 2:
-                requete.id = 203;
-                envoyer(&sockDialogue, &requete, serialize_requete);
 
-                requete_t joueurs[MAX_BUFFER];
-                recevoir(&sockDialogue, &joueurs, serialize_tab_requte);
-                printf("Liste des connectés recu\n");
+            //dire au serveur que le joueur est pris
+            requete.id = 204;
+            sprintf(requete.message, "%d", i);
+            envoyer(&sockDialogue, &requete, (pFct)serialize_requete);
             
-                for(int i = 0; i < MAX_BUFFER; i++){
-                    if(joueurs[i].waitJoueur == 1){
-                        printf("Joueur %d: %s:%d\n", i, inet_ntoa(joueurs[i].ip), joueurs[i].port);
-                    }
-                }
-                
-                break;
+
+            //on se connecte a celui qu'on trouve
+            socket_t sockDialogueJeu;
+           
+
+            sockDialogueJeu = connecterClt2Srv(joueurs[i].joueur.ip, joueurs[i].joueur.port);
+ 
+
+            //crée un thread de jeu
+            pthread_t thread;
+            pthread_create(&thread, NULL, jouerClt2Srv,(void *)&sockDialogueJeu);
+    
+
+
+            pthread_exit(NULL);
             
-            case 5:
-                requete.id = 204;
-                pthread_exit(NULL);
-                break;
-            default:
-                break;
         }
     }
-
-
-
-
 
     pthread_exit(NULL);
 }

@@ -11,37 +11,32 @@
 
 
 //tableau global des joueurs
-requete_t joueurs[MAX_BUFFER];
+requete_t joueurs[MAX_CLIENT];
 sem_t semJeu;
 int nbClt = 0;
 
 
 void *dialClt(void *arg){
     socket_t sockDialogue = *(socket_t *)arg;
-    // je recoie la première requête d'enregistrement
+
     requete_t requete;
-    recevoir(&sockDialogue, &requete, deserialize_requete);
-    printf("Requete reçue: %d %s %d\n", 
-    requete.id,
-    inet_ntoa(requete.ip),
-    ntohs(requete.port));
 
-    requete.joueur = nbClt;
-    requete.waitJoueur = 1;
-    requete.joueur = nbClt;
-    joueurs[nbClt] = requete;
-    sem_post(&semJeu);
 
-    printf("ici\n");
     while (1)
     {
-        recevoir(&sockDialogue, &requete, deserialize_requete);
-        printf("Requete reçue: %d\n", requete.id);
+        printf("En attente de requête\n");
+        recevoir(&sockDialogue, &requete, (pFct)deserialize_requete);
+        printf("Requete reçue: [%d] [%s] [%d]\n", requete.id, requete.joueur.ip, requete.joueur.port);
 
         switch (requete.id)
         {
             case 200:
-                //connecter avec un autre client
+                //connect
+                requete.joueur.id = nbClt;
+                requete.joueur.waitJoueur = 1;
+                joueurs[nbClt] = requete;
+                nbClt++;
+                sem_post(&semJeu);
                 break;
             case 201:
                 //disconect
@@ -51,12 +46,28 @@ void *dialClt(void *arg){
                 break;
             case 203:
                 //lister les parties
-                for(int i = 0; i < MAX_BUFFER; i++){
-                    if(joueurs[i].waitJoueur == 1){
-                        printf("Joueur %d: %s:%d\n", i, inet_ntoa(joueurs[i].ip), joueurs[i].port);
+                printf("Liste des connectés\n");
+                envoyer(&sockDialogue, joueurs, (pFct)serialize_tab_requte);
+                break;
+            case 204:
+                //join party
+                joueurs[requete.joueur.id].joueur.waitJoueur = 0;
+                int idToChange = atoi(requete.message);
+                
+                for (int i = 0; i < MAX_CLIENT; i++) {
+                    if (joueurs[i].joueur.id == idToChange) {
+                        printf("Joueur [%d] trouvé\n", idToChange);
+                        joueurs[i].joueur.waitJoueur = 0;
+                        break;
                     }
-                }
-                envoyer(&sockDialogue, joueurs, serialize_tab_requte);
+                }     
+                           
+                break;
+            
+            case 1000:
+                //test requete
+                printf("Requete test reçue\n");
+                printf("Message: %s\n", requete.message);
                 break;
         
         
@@ -67,7 +78,7 @@ void *dialClt(void *arg){
         
     }
     
-
+    close(sockDialogue.fd);
     pthread_exit(NULL);
 }
 
@@ -89,7 +100,6 @@ int main() {
         pthread_create(&thread, NULL, dialClt,(void *)&sockDialogue);
 
         sem_wait(&semJeu);
-        nbClt++;
         
     }
     close (sockDialogue.fd);

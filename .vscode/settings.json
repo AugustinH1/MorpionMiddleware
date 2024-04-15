@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.txt": "c",
+        "semaphore.h": "c"
+    }
+}
