@@ -1,8 +1,4 @@
-//Morpion en réseau avec 2 clients et un serveur
-//ici le client
-
 #include "include/morpion.h"
-
 
 socket_t sockEcouteSrvjeu;
 sem_t semJeu;
@@ -176,10 +172,6 @@ void *jouerSvr2Clt(void *arg){
         }
 
     }
-
-
-    
-
     
 
     pthread_exit(NULL);

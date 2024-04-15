@@ -1,12 +1,6 @@
-//Morpion en réseau avec 2 clients et un serveur
 //watch -d -n0.1 'netstat --inet -anp | grep exe'
-//ici le serveur
-
-
 
 #include "include/morpion.h"
-#include <pthread.h>
-#include <semaphore.h>
 
 
 
@@ -74,10 +68,7 @@ void requete(socket_t sockDialogue){
                 break;
             case 201:
                 //disconect
-                break;
-            case 202:
-                //create party
-                break;
+                break
             case 203:
                 //lister les parties
                 envoyer(&sockDialogue, joueurs, (pFct)serialize_tab_requte);
