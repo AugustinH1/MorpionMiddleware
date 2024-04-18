@@ -74,7 +74,7 @@ void serialize_requete(requete_t *r, char *buffer){
 }
 
 void deserialize_requete(char *buffer, requete_t *r) {
-    sscanf(buffer, "%d:%d:%[^:]:%d:%d",&r->id, &r->joueur.id, r->joueur.ip, &r->joueur.port, &r->joueur.waitJoueur);
+    sscanf(buffer, "%d:%d:%[^:]:%d:%d",&r->id, &r->joueur.id, r->joueur.ip, (int *)(&r->joueur.port), &r->joueur.waitJoueur);
 }
 
 void serialize_tab_requte(requete_t *tab, char *buffer){

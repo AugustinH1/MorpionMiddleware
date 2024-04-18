@@ -2,6 +2,10 @@
 
 socket_t sockEcouteSrvjeu;
 sem_t semJeu;
+pthread_t threadJeu;
+pthread_t threadClient;
+pthread_t threadJouerClt2Srv;
+pthread_t threadjouerSvr2Clt;
 
 /**
  * \fn void *dialSvrEnr()
@@ -37,13 +41,11 @@ int main() {
 
 
     //lancement serveur 
-    pthread_t threadJeu;
     pthread_create(&threadJeu, NULL, srvJeu, NULL);
 
     sem_wait(&semJeu);
 
     //lancement d'un client
-    pthread_t threadClient;
     pthread_create(&threadClient, NULL, dialSvrEnr, NULL);
 
 
@@ -98,14 +100,15 @@ void *dialSvrEnr(){
             sockDialogueJeu = connecterClt2Srv(joueurs[i].joueur.ip, joueurs[i].joueur.port);
 
             //crée un thread de jeu
-            pthread_t thread;
-            pthread_create(&thread, NULL, jouerClt2Srv,(void *)&sockDialogueJeu);
+            pthread_create(&threadJouerClt2Srv, NULL, jouerClt2Srv,(void *)&sockDialogueJeu);
     
             
-            pthread_exit(NULL);
-            
+            break;
         }
     }
+
+    requete.id = 201;
+    envoyer(&sockDialogue, &requete, (pFct)serialize_requete);
 
     pthread_exit(NULL);
 }
@@ -114,17 +117,16 @@ void *dialSvrEnr(){
 
 void *srvJeu(){
     socket_t sockDialogue;
-    pthread_t thread;
 
     sockEcouteSrvjeu = creerSocketEcoute("0.0.0.0", 0);
     sem_post(&semJeu);
 
     while (1){
         sockDialogue = accepterClt(sockEcouteSrvjeu);
-        pthread_create(&thread, NULL, jouerSvr2Clt,(void *)&sockDialogue);
+        pthread_create(&jouerSvr2Clt, NULL, jouerSvr2Clt,(void *)&sockDialogue);
     }
 
-    close (sockDialogue.fd);
+
     close(sockEcouteSrvjeu.fd);
 
     pthread_exit(NULL);
@@ -196,6 +198,8 @@ void *jouerSvr2Clt(void *arg){
     }
     
 
+    printf("Fin de la partie\n");
+    close (sockDialogue.fd);
     pthread_exit(NULL);
 }
 
@@ -253,6 +257,7 @@ void *jouerClt2Srv(void *arg){
 
 
     
-    
+    printf("Fin de la partie\n");
+    close (sockDialogue.fd);
     pthread_exit(NULL);
 }

@@ -81,6 +81,12 @@ void requete(socket_t sockDialogue){
                 break;
             case 201:
                 //disconect
+                for (int i = 0; i < MAX_CLIENT; i++) {
+                    if (joueurs[i].joueur.id == requete.joueur.id) {
+                        joueurs[i].joueur.id = -1;
+                        break;
+                    }
+                }
                 break;
             case 203:
                 //lister les parties
