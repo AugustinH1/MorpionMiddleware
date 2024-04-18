@@ -10,7 +10,20 @@ sem_t semJeu;
 int nbClt = 0;
 
 
+/**
+ * \fn void *dialClt(void *arg)
+ * \brief Fonction de dialogue avec un client
+ * \param void *arg: socket de dialogue
+ * \return void
+*/
 void *dialClt(void *arg);
+
+/**
+ * \fn void requete(socket_t sockDialogue)
+ * \brief Fonction de traitement des requêtes
+ * \param socket_t sockDialogue: socket de dialogue
+ * \return void
+*/
 void requete(socket_t sockDialogue);
 
 

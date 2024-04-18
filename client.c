@@ -3,10 +3,32 @@
 socket_t sockEcouteSrvjeu;
 sem_t semJeu;
 
-
+/**
+ * \fn void *dialSvrEnr()
+ * \brief Fonction de dialogue avec le serveur d'enregistrement
+ * \param void
+*/
 void *jouerClt2Srv(void *arg);
+
+/**
+ * \fn void *srvJeu()
+ * \brief Fonction de dialogue avec le serveur de jeu
+ * \param void
+*/
 void *jouerSvr2Clt(void *arg);
+
+/**
+ * \fn void *srvJeu()
+ * \brief Fonction de dialogue avec le serveur de jeu
+ * \param void
+*/
 void *srvJeu();
+
+/**
+ * \fn void *dialSvrEnr()
+ * \brief Fonction de dialogue avec le serveur d'enregistrement
+ * \param void
+*/
 void *dialSvrEnr();
 
 int main() {
